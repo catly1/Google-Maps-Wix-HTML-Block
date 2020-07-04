@@ -125,13 +125,6 @@
             center: { lat: 38.05267251910551, lng: -121.37343314718275 }
         });
 
-        window.onmessage = (event) => {
-            if (event.data) {
-                map.setCenter(event.data.latitude, event.data.longitude)
-                map.setZoom(9)
-            }
-        };
-
         // Load the stores GeoJSON onto the map.
         // map.data.loadGeoJson('stores.json', { idPropertyName: 'storeid' });
 
@@ -208,38 +201,78 @@
         originMarker.setVisible(false);
         let originLocation = map.getCenter();
 
-        autocomplete.addListener('place_changed', async () => {
-            originMarker.setVisible(false);
-            originLocation = map.getCenter();
-            const place = autocomplete.getPlace();
-
-            if (!place.geometry) {
-                // User entered the name of a Place that was not suggested and
-                // pressed the Enter key, or the Place Details request failed.
-                window.alert('No address available for input: \'' + place.name + '\'');
-                return;
+        window.onmessage = (event) => {
+            if (event.data) {
+                centerWhenAddressIsRecieved("", map, originMarker, event.data.latitude, event.data.longitude)
             }
+        };
 
-            // Recenter the map to the selected address
-            originLocation = place.geometry.location;
-            map.setCenter(originLocation);
-            map.setZoom(9);
-            console.log(place);
+        autocomplete.addListener('place_changed', async () => {
+        const place = autocomplete.getPlace();
 
-            originMarker.setPosition(originLocation);
-            originMarker.setVisible(true);
-
-            // Use the selected address as the origin to calculate distances
-            // to each of the store locations
-            const rankedStores = await calculateDistances(map.data, originLocation);
-            showStoresList(map.data, rankedStores);
-
+        if (!place.geometry) {
+            // User entered the name of a Place that was not suggested and
+            // pressed the Enter key, or the Place Details request failed.
+            window.alert('No address available for input: \'' + place.name + '\'');
             return;
+        }
+
+        centerWhenAddressIsRecieved(place, map, originMarker)
+        //     originMarker.setVisible(false);
+        //     originLocation = map.getCenter();
+            // const place = autocomplete.getPlace();
+
+            // if (!place.geometry) {
+            //     // User entered the name of a Place that was not suggested and
+            //     // pressed the Enter key, or the Place Details request failed.
+            //     window.alert('No address available for input: \'' + place.name + '\'');
+            //     return;
+            // }
+
+        //     // Recenter the map to the selected address
+        //     originLocation = place.geometry.location;
+        //     map.setCenter(originLocation);
+        //     map.setZoom(9);
+        //     console.log(place);
+
+        //     originMarker.setPosition(originLocation);
+        //     originMarker.setVisible(true);
+
+        //     // Use the selected address as the origin to calculate distances
+        //     // to each of the store locations
+        //     const rankedStores = await calculateDistances(map.data, originLocation);
+        //     showStoresList(map.data, rankedStores);
+
+        //     return;
         });
     }
 
-    function centerWhenAddressIsRecieved(){
+    async function centerWhenAddressIsRecieved(place, map, originMarker, lat, long){
+        originMarker.setVisible(false);
+        let originLocation = map.getCenter();
 
+        
+        // Recenter the map to the selected address
+        if (place){
+            originLocation = place.geometry.location;
+        }
+
+        if (lat){
+            originLocation = {lat: lat ,lng: long}
+        } 
+        map.setCenter(originLocation);
+        map.setZoom(9);
+        console.log(place);
+
+        originMarker.setPosition(originLocation);
+        originMarker.setVisible(true);
+
+        // Use the selected address as the origin to calculate distances
+        // to each of the store locations
+        const rankedStores = await calculateDistances(map.data, originLocation);
+        showStoresList(map.data, rankedStores);
+
+        return;
     }
 
     /**

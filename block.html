@@ -103,7 +103,6 @@
     <script>
         
     function sanitizeHTML(strings) {
-        console.log(strings)
         const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' };
         let result = strings[0];
         for (let i = 1; i < arguments.length; i++) {
@@ -120,6 +119,7 @@
      */
     function initMap() {
         // Create the map.
+        let locations = [];
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
             center: { lat: 38.05267251910551, lng: -121.37343314718275 }
@@ -130,15 +130,11 @@
                 const apiKey = 'AIzaSyBeIL0BP3dy8iUlMk0SK-Rhn0GN2VUJL2c';
                 const infoWindow = new google.maps.InfoWindow();
             if (event.data) {
-                // console.log(event.data)
                 event.data.features.forEach(location =>{
                     console.log(location)
+                    locations.push(location)
                     createMarker(map, location, infoWindow, apiKey)
                 })
-                // console.log(event.data.features[0].geometry.coordinates)
-                // let geo = JSON.parse(event.data)
-                // console.log(geo)
-                // map.data.addGeoJson(geo);
             }
 
             // Define the custom marker icons, using the store's "category".
@@ -216,7 +212,7 @@
 
 
             if (event.data) {
-                centerWhenAddressIsRecieved("", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude)
+                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude)
             }
 
 
@@ -230,7 +226,7 @@
                 return;
             }
 
-            centerWhenAddressIsRecieved(place, map, originMarker)
+            centerWhenAddressIsRecieved(locations, place, map, originMarker)
             //     originMarker.setVisible(false);
             //     originLocation = map.getCenter();
                 // const place = autocomplete.getPlace();
@@ -262,7 +258,6 @@
     }
 
     function createMarker(map, location, infoWindow, apiKey){
-        console.log(location.geometry)
         var marker = new google.maps.Marker({
             map: map,
             position: {lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1]}
@@ -295,7 +290,7 @@
 
 
 
-    async function centerWhenAddressIsRecieved(place, map, originMarker, lat, long){
+    async function centerWhenAddressIsRecieved(locations, place, map, originMarker, lat, long){
         originMarker.setVisible(false);
         let originLocation = map.getCenter();
 
@@ -310,15 +305,14 @@
         } 
         map.setCenter(originLocation);
         map.setZoom(9);
-        console.log(place);
 
         originMarker.setPosition(originLocation);
         originMarker.setVisible(true);
 
         // Use the selected address as the origin to calculate distances
         // to each of the store locations
-        const rankedStores = await calculateDistances(map.data, originLocation);
-        showStoresList(map.data, rankedStores);
+        const rankedStores = await calculateDistances(locations, originLocation);
+        showStoresList(locations, rankedStores);
 
         return;
     }
@@ -332,20 +326,19 @@
      * a distanceText, distanceVal, and storeid property, sorted ascending
      * by distanceVal.
      */
-    async function calculateDistances(data, origin) {
+    async function calculateDistances(locations, origin) {
         const stores = [];
         const destinations = [];
 
         // Build parallel arrays for the store IDs and destinations
-        data.forEach((store) => {
-            console.log(store)
-            const storeNum = store.getProperty('storeid');
-            const storeLoc = store.getGeometry().get();
+        locations.forEach((store) => {
+            const storeNum = store.properties.storeid;
+            const storeLoc = {lat: store.geometry.coordinates[0], lng: store.geometry.coordinates[1]};
 
             stores.push(storeNum);
             destinations.push(storeLoc);
         });
-
+        console.log("finished interating through locations")
         // Retrieve the distances of each store from the origin
         // The returned list will be in the same order as the destinations list
         const service = new google.maps.DistanceMatrixService();
@@ -373,6 +366,9 @@
                     }
                 });
             });
+        console.log(destinations)
+        console.log(destinations[0])
+        console.log("gotten distance matrix")
 
         const distancesList = await getDistanceMatrix(service, {
             origins: [origin],
@@ -380,11 +376,14 @@
             travelMode: 'DRIVING',
             unitSystem: google.maps.UnitSystem.METRIC,
         });
+        
+        console.log("gotten distance list")
 
         distancesList.sort((first, second) => {
             return first.distanceVal - second.distanceVal;
         });
-
+        
+        console.log(distancesList)
         return distancesList;
     }
 
@@ -395,7 +394,7 @@
      * @param {object[]} stores An array of objects with a distanceText,
      * distanceVal, and storeid property.
      */
-    function showStoresList(data, stores) {
+    function showStoresList(locations, stores) {
         if (stores.length == 0) {
             console.log('empty stores');
             return;
@@ -425,8 +424,11 @@
             // Add store details with text formatting
             const name = document.createElement('p');
             name.classList.add('place');
-            const currentStore = data.getFeatureById(store.storeid);
-            name.textContent = currentStore.getProperty('name');
+            // const currentStore = data.getFeatureById(store.storeid);
+            console.log(store)
+            const currentStore = locations.filter(location => location.properties.storeid === store.storeid)[0]
+            console.log("didn't get here")
+            name.textContent = currentStore.properties.name;
             panel.appendChild(name);
             const distanceText = document.createElement('p');
             distanceText.classList.add('distanceText');

@@ -85,7 +85,8 @@
             /* margin-block-end: 0px; */
             padding-left: 18px;
             padding-right: 18px;
-            margin-bottom: 1px;
+            margin: 0;
+            margin-bottom: 3px;
         }
 
         .distanceText {
@@ -93,17 +94,19 @@
             font-family: 'open sans', arial, sans-serif;
             font-size: 1em;
             font-weight: 400;
-            margin-block-start: 0.25em;
+            /* margin-block-start: 0.25em; */
             padding-left: 18px;
             padding-right: 18px;
+            margin: 0;
+            margin-top: 5px;
         }
 
         .websiteLink {
-            color: lightblue;
+            color: lightseagreen;
             font-family: 'open sans', arial, sans-serif;
             font-size: 0.9em;
             font-weight: 400;
-            margin-block-start: 0.25em;
+            /* margin-block-start: 0.25em; */
             padding-left: 18px;
             padding-right: 18px;
             text-decoration: none;
@@ -117,6 +120,23 @@
             display: flex;
             flex-direction: row;
             height: 100%;
+        }
+
+        .panelEntry{
+            padding: 15px 0 15px 0;
+        }
+
+        .panelEntry:hover{
+            background-color: lightgray;
+        }
+
+        .panelEntry:hover .distanceText{
+            color: white;
+        }
+
+        .panelEntry:hover .websiteLink{
+            color: white;
+
         }
     </style>
 </head>
@@ -201,7 +221,7 @@
                 ['address_components', 'geometry', 'name']);
 
             // Set the origin point when the user selects an address
-            const originMarker = new google.maps.Marker({ map: map, icon: });
+            const originMarker = new google.maps.Marker({ map: map});
             originMarker.setVisible(false);
             let originLocation = map.getCenter();
 
@@ -402,22 +422,25 @@
 
         stores.forEach((store) => {
             // Add store details with text formatting
+            const entry = document.createElement('div');
+            entry.classList.add('panelEntry')
             const name = document.createElement('p');
             name.classList.add('place');
             const currentStore = locations.filter(location => location.properties.storeid === store.storeid)[0];
             name.textContent = currentStore.properties.name;
-            panel.appendChild(name);
+            entry.appendChild(name);
             if (currentStore.properties.website) {
                 const websiteLink = document.createElement('a');
                 websiteLink.classList.add('websiteLink');
                 websiteLink.href = currentStore.properties.website;
-                websiteLink.textContent = "Website";
-                panel.appendChild(websiteLink);
+                websiteLink.textContent = "website";
+                entry.appendChild(websiteLink);
             }
             const distanceText = document.createElement('p');
             distanceText.classList.add('distanceText');
             distanceText.textContent = store.distanceText;
-            panel.appendChild(distanceText);
+            entry.appendChild(distanceText);
+            panel.appendChild(entry);
         });
 
         // Open the panel

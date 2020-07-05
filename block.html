@@ -79,9 +79,10 @@
             font-family: 'open sans', arial, sans-serif;
             font-size: 1.2em;
             font-weight: 500;
-            margin-block-end: 0px;
+            /* margin-block-end: 0px; */
             padding-left: 18px;
             padding-right: 18px;
+            margin-bottom: 1px;
         }
 
         .distanceText {
@@ -92,6 +93,21 @@
             margin-block-start: 0.25em;
             padding-left: 18px;
             padding-right: 18px;
+        }
+
+        .websiteLink {
+            color: lightblue;
+            font-family: 'open sans', arial, sans-serif;
+            font-size: 0.9em;
+            font-weight: 400;
+            margin-block-start: 0.25em;
+            padding-left: 18px;
+            padding-right: 18px;
+            text-decoration: none;
+        }
+
+        .websiteLink:hover{
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -121,6 +137,7 @@
         // Create the map.
         let locations = [];
         let markers = [];
+        let originalMarkers = [];
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
             center: { lat: 38.05267251910551, lng: -121.37343314718275 }
@@ -133,7 +150,9 @@
             if (event.data) {
                 event.data.features.forEach(location =>{
                     locations.push(location)
-                    markers.push(createMarker(map, location, infoWindow, apiKey))
+                    let markerLocation = createMarker(map, location, infoWindow, apiKey)
+                    markers.push(markerLocation)
+                    originalMarkers.push(markerLocation)
                 })
             }
 
@@ -191,11 +210,11 @@
             }
 
             centerWhenAddressIsRecieved(locations, place, map, originMarker).then(res => {
-                
+                markers = originalMarkers.slice()
                 markers.push(res)
-                            let bounds = new google.maps.LatLngBounds();
+                console.log(markers)
+                let bounds = new google.maps.LatLngBounds();
                 for (let i = 0; i < markers.length; i++) {
-                    console.log(markers[i])
                     bounds.extend(markers[i].position);
                 }
 
@@ -215,17 +234,22 @@
         });
 
         marker.addListener("click", (event) =>{
-            // map.setZoom(10)
             const category = location.properties.category;
             const name = location.properties.name;
             const description = location.properties.description;
             const hours = location.properties.hours;
             const phone = location.properties.phone;
+            const website = location.properties.website
+            let websiteElement
+            if (website){
+                websiteElement = `<a href=${website}>Website</a>`
+            }
             const position = { lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1] };
             const content = sanitizeHTML`
         <div>
             <h2>${name}</h2><p>${description}</p>
             <p><b>Open:</b> ${hours}<br/><b>Phone:</b> ${phone}</p>
+            <a href=${website}>Website</a>
         </div>
         `;
 
@@ -254,8 +278,8 @@
         if (lat){
             originLocation = {lat: lat ,lng: long}
         } 
-        map.setCenter(originLocation);
-        map.setZoom(9);
+        // map.setCenter(originLocation);
+        // map.setZoom(9);
 
         originMarker.setPosition(originLocation);
         originMarker.setVisible(true);
@@ -371,6 +395,13 @@
             const currentStore = locations.filter(location => location.properties.storeid === store.storeid)[0];
             name.textContent = currentStore.properties.name;
             panel.appendChild(name);
+            if (currentStore.properties.website) {
+                const websiteLink = document.createElement('a');
+                websiteLink.classList.add('websiteLink');
+                websiteLink.href = currentStore.properties.website;
+                websiteLink.textContent = "Website";
+                panel.appendChild(websiteLink);
+            }
             const distanceText = document.createElement('p');
             distanceText.classList.add('distanceText');
             distanceText.textContent = store.distanceText;

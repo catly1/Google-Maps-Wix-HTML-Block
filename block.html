@@ -5,6 +5,7 @@
     <style>
         #map {
             height: 100%;
+            flex-basis: 100%;
         }
 
         html,
@@ -16,7 +17,7 @@
 
         /* Styling for autocomplete search bar */
         #pac-card {
-            background-color: #fff;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 2px 0 0 2px;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
@@ -62,12 +63,14 @@
         /* Styling for an info pane that slides out from the left. 
      * Hidden by default. */
         #panel {
+            flex-basis: 260px;
+            flex-shrink: 0; /* just one way to do it */
             height: 100%;
-            width: null;
-            background-color: white;
-            position: fixed;
+            overflow: auto;
+            background: rgba(255, 255, 255, 1);
+            /* position: fixed; */
             z-index: 1;
-            overflow-x: hidden;
+            /* overflow-x: hidden; */
             transition: all .2s ease-out;
         }
 
@@ -109,13 +112,21 @@
         .websiteLink:hover{
             text-decoration: underline;
         }
+
+        .wrapper{
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+        }
     </style>
 </head>
 
 <body>
     <!-- The div to hold the map -->
-    <div id="map"></div>
-
+    <div class="wrapper">
+        <div id="panel"></div>
+        <div id="map"></div>
+    </div>
     <script>
         
     function sanitizeHTML(strings) {
@@ -140,7 +151,8 @@
         let originalMarkers = [];
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
-            center: { lat: 38.05267251910551, lng: -121.37343314718275 }
+            center: { lat: 38.05267251910551, lng: -121.37343314718275 },
+            mapTypeControl: false
         });
 
         window.onmessage = (event) => {
@@ -189,7 +201,7 @@
                 ['address_components', 'geometry', 'name']);
 
             // Set the origin point when the user selects an address
-            const originMarker = new google.maps.Marker({ map: map });
+            const originMarker = new google.maps.Marker({ map: map, icon: });
             originMarker.setVisible(false);
             let originLocation = map.getCenter();
 
@@ -278,8 +290,8 @@
         if (lat){
             originLocation = {lat: lat ,lng: long}
         } 
-        // map.setCenter(originLocation);
-        // map.setZoom(9);
+        map.setCenter(originLocation);
+        map.setZoom(13);
 
         originMarker.setPosition(originLocation);
         originMarker.setVisible(true);

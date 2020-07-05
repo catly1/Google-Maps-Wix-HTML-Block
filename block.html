@@ -132,7 +132,6 @@
                 const infoWindow = new google.maps.InfoWindow();
             if (event.data) {
                 event.data.features.forEach(location =>{
-                    console.log(location)
                     locations.push(location)
                     markers.push(createMarker(map, location, infoWindow, apiKey))
                 })
@@ -177,7 +176,7 @@
 
 
             if (event.data) {
-                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude)
+                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude).then(res => markers.push(res))
             }
 
 
@@ -191,7 +190,20 @@
                 return;
             }
 
-            centerWhenAddressIsRecieved(locations, place, map, originMarker)
+            centerWhenAddressIsRecieved(locations, place, map, originMarker).then(res => {
+                
+                markers.push(res)
+                            let bounds = new google.maps.LatLngBounds();
+                for (let i = 0; i < markers.length; i++) {
+                    console.log(markers[i])
+                    bounds.extend(markers[i].position);
+                }
+
+                map.fitBounds(bounds);
+                
+                })
+
+
             });
         };
     }
@@ -253,7 +265,7 @@
         const rankedStores = await calculateDistances(locations, originLocation);
         showStoresList(locations, rankedStores);
 
-        return;
+        return {position: originLocation};
     }
 
     /**

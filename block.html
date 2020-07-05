@@ -269,19 +269,17 @@
         });
 
         marker.addListener("click", (event) =>{
-            map.setZoom(10)
-            const category = location.category;
-            const name = location.name;
-            const description = location.description;
-            const hours = location.hours;
-            const phone = location.phone;
+            // map.setZoom(10)
+            const category = location.properties.category;
+            const name = location.properties.name;
+            const description = location.properties.description;
+            const hours = location.properties.hours;
+            const phone = location.properties.phone;
             const position = { lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1] };
             const content = sanitizeHTML`
-        <img style="float:left; width:200px; margin-top:30px" src="img/logo_${category}.png">
-        <div style="margin-left:220px; margin-bottom:20px;">
+        <div>
             <h2>${name}</h2><p>${description}</p>
             <p><b>Open:</b> ${hours}<br/><b>Phone:</b> ${phone}</p>
-            <p><img src="https://maps.googleapis.com/maps/api/streetview?size=350x120&location=${position.lat},${position.log}&key=${apiKey}"></p>
         </div>
         `;
 
@@ -295,21 +293,7 @@
         return marker;
     }
 
-    function showInfoWindow(evt, service_marker, service, map, infowindow) {
-            service.getDetails({
-                placeId: service_marker.placeResult.place_id
-            }, //error here
-                function (place, status) {
-                    if (status == google.maps.places.PlacesServiceStatus.OK) {
-                        infowindow.setContent(place.name);
-                        infowindow.open(map, service_marker);
-                    } else {
-                        infowindow.setContent("error: " + status);
-                        infowindow.open(map, service_marker);
-                    }
 
-                });
-        }
 
     async function centerWhenAddressIsRecieved(place, map, originMarker, lat, long){
         originMarker.setVisible(false);

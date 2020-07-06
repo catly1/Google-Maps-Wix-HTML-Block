@@ -123,7 +123,8 @@
         }
 
         .panelEntry{
-            padding: 15px 0 15px 0;
+            display: flex;
+            padding: 15px 0 15px 15px;
         }
 
         .panelEntry:hover{
@@ -137,6 +138,27 @@
         .panelEntry:hover .websiteLink{
             color: white;
 
+        }
+
+        .panelStoreLogo{
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+        }
+
+        .infoWindow{
+            display: flex;
+        }
+
+        .infoWindow h2 {
+            margin-top: 0;
+        }
+
+        .infoWindowLogo{
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 10px;
         }
     </style>
 </head>
@@ -271,17 +293,17 @@
             const description = location.properties.description;
             const hours = location.properties.hours;
             const phone = location.properties.phone;
-            const website = location.properties.website
-            let websiteElement
-            if (website){
-                websiteElement = `<a href=${website}>Website</a>`
-            }
+            const website = location.properties.website ? location.properties.website : "";
+            const logo = location.properties.logo;
             const position = { lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1] };
             const content = sanitizeHTML`
-        <div>
-            <h2>${name}</h2><p>${description}</p>
-            <p><b>Open:</b> ${hours}<br/><b>Phone:</b> ${phone}</p>
-            <a href=${website}>Website</a>
+        <div class="infoWindow">
+            <img class="infoWindowLogo" src=${logo} alt="store logo"/>
+            <div class="infoWindowRight">
+                <h2>${name}</h2><p>${description}</p>
+                <p><b>Open:</b> ${hours}<br/><b>Phone:</b> ${phone}</p>
+                <a target="_blank" href=${website}>Website</a>
+            </div>
         </div>
         `;
 
@@ -319,7 +341,7 @@
         // Use the selected address as the origin to calculate distances
         // to each of the store locations
         const rankedStores = await calculateDistances(locations, originLocation);
-        showStoresList(locations, rankedStores);
+        showStoresList(locations, rankedStores, map);
 
         return {position: originLocation};
     }
@@ -394,7 +416,7 @@
      * @param {object[]} stores An array of objects with a distanceText,
      * distanceVal, and storeid property.
      */
-    function showStoresList(locations, stores) {
+    function showStoresList(locations, stores, map) {
         if (stores.length == 0) {
             console.log('empty stores');
             return;
@@ -424,23 +446,37 @@
             // Add store details with text formatting
             const entry = document.createElement('div');
             entry.classList.add('panelEntry')
+
+            const right = document.createElement('div');
             const name = document.createElement('p');
             name.classList.add('place');
             const currentStore = locations.filter(location => location.properties.storeid === store.storeid)[0];
+            const left = document.createElement('img');
+            left.src = currentStore.properties.logo;
+            left.alt = "store logo"
+            left.classList.add('panelStoreLogo')
             name.textContent = currentStore.properties.name;
-            entry.appendChild(name);
+            right.appendChild(name);
             if (currentStore.properties.website) {
                 const websiteLink = document.createElement('a');
                 websiteLink.classList.add('websiteLink');
                 websiteLink.href = currentStore.properties.website;
                 websiteLink.textContent = "website";
-                entry.appendChild(websiteLink);
+                websiteLink.target= "_blank"
+                right.appendChild(websiteLink);
             }
             const distanceText = document.createElement('p');
             distanceText.classList.add('distanceText');
             distanceText.textContent = store.distanceText;
-            entry.appendChild(distanceText);
+            right.appendChild(distanceText);
+            entry.appendChild(left);
+            entry.appendChild(right);
             panel.appendChild(entry);
+            entry.addEventListener("click", ()=>{
+                let position = {lat: currentStore.geometry.coordinates[0], lng: currentStore.geometry.coordinates[1]}
+                map.setCenter(position);
+                map.setZoom(14);
+            })
         });
 
         // Open the panel

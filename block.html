@@ -160,6 +160,43 @@
             object-fit: cover;
             margin-right: 10px;
         }
+
+
+        @media only screen and (max-width:600px) {
+            .wrapper{
+                flex-direction: column-reverse;
+            }
+
+            #panel{
+                width: 100%;
+                flex-basis: 50%;
+            }
+
+            /* .panelEntry{
+                width: 100%;
+            } */
+
+            #pac-card{
+                right: none;
+                left: 0;
+                margin: 0;
+            }
+
+            #pac-container{
+                margin-right: 0;
+                display: flex;
+                justify-content: center;
+            }
+
+            #pac-input{
+                margin-left: 0;
+                width: 90%;
+            }
+
+            #currentLocationButton{
+                display: flex;
+            }
+        }
     </style>
 </head>
 
@@ -191,13 +228,16 @@
         let locations = [];
         let markers = [];
         let originalMarkers = [];
+        let loaded;
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
             center: { lat: 38.05267251910551, lng: -121.37343314718275 },
             mapTypeControl: false
         });
+        let originMarker;
 
         window.onmessage = (event) => {
+            if (!loaded){
             // Load the stores GeoJSON onto the map.
                 const apiKey = 'AIzaSyBeIL0BP3dy8iUlMk0SK-Rhn0GN2VUJL2c';
                 const infoWindow = new google.maps.InfoWindow();
@@ -234,6 +274,9 @@
             card.appendChild(container);
             map.controls[google.maps.ControlPosition.TOP_RIGHT].push(card);
 
+
+
+
             // Make the search bar into a Places Autocomplete search bar and select
             // which detail fields should be returned about the place that
             // the user selects from the suggestions.
@@ -243,42 +286,53 @@
                 ['address_components', 'geometry', 'name']);
 
             // Set the origin point when the user selects an address
-            const originMarker = new google.maps.Marker({ map: map});
+            originMarker = new google.maps.Marker({ map: map});
             originMarker.setVisible(false);
             let originLocation = map.getCenter();
 
 
-            if (event.data) {
-                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude).then(res => markers.push(res))
+            if (event.data && event.data.currentLocation) {
+                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude).then(res => adjustBounds(map, markers, originalMarkers, res))
             }
 
-
+            
             autocomplete.addListener('place_changed', async () => {
             const place = autocomplete.getPlace();
 
             if (!place.geometry) {
+                console.log("it's here")
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
                 window.alert('No address available for input: \'' + place.name + '\'');
                 return;
             }
 
-            centerWhenAddressIsRecieved(locations, place, map, originMarker).then(res => {
-                markers = originalMarkers.slice()
-                markers.push(res)
-                console.log(markers)
-                let bounds = new google.maps.LatLngBounds();
-                for (let i = 0; i < markers.length; i++) {
-                    bounds.extend(markers[i].position);
-                }
-
-                map.fitBounds(bounds);
-                
-                })
-
-
+            centerWhenAddressIsRecieved(locations, place, map, originMarker).then(res =>adjustBounds(map, markers, originalMarkers, res))
             });
+            loaded = true
+            } else {
+                centerWhenAddressIsRecieved(locations, "", map, originMarker, event.data.currentLocation.latitude, event.data.currentLocation.longitude).then(res => adjustBounds(map, markers, originalMarkers, res))
+            }
         };
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+        infoWindow.setPosition(pos);
+        infoWindow.setContent(browserHasGeolocation ?
+            'Error: The Geolocation service failed.' :
+            'Error: Your browser doesn\'t support geolocation.');
+        infoWindow.open(map);
+    }
+
+    function adjustBounds(map, markers, originalMarkers, res){
+        markers = originalMarkers.slice()
+        markers.push(res)
+        let bounds = new google.maps.LatLngBounds();
+        for (let i = 0; i < markers.length; i++) {
+            bounds.extend(markers[i].position);
+        }
+
+        map.fitBounds(bounds);
     }
 
     function createMarker(map, location, infoWindow, apiKey){

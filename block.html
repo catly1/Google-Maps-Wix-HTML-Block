@@ -242,6 +242,7 @@
                 const apiKey = 'AIzaSyBeIL0BP3dy8iUlMk0SK-Rhn0GN2VUJL2c';
                 const infoWindow = new google.maps.InfoWindow();
             if (event.data) {
+                console.log(event.data)
                 event.data.features.forEach(location =>{
                     locations.push(location)
                     let markerLocation = createMarker(map, location, infoWindow, apiKey)
@@ -338,18 +339,18 @@
     function createMarker(map, location, infoWindow, apiKey){
         var marker = new google.maps.Marker({
             map: map,
-            position: {lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1]}
+            position: {lat: location.latitude, lng: location.longitude}
         });
 
         marker.addListener("click", (event) =>{
-            const category = location.properties.category;
-            const name = location.properties.name;
-            const description = location.properties.description;
-            const hours = location.properties.hours;
-            const phone = location.properties.phone;
-            const website = location.properties.website ? location.properties.website : "";
-            const logo = location.properties.logo;
-            const position = { lat: location.geometry.coordinates[0], lng: location.geometry.coordinates[1] };
+            const category = location.category;
+            const name = location.name;
+            const description = location.description;
+            const hours = location.hours;
+            const phone = location.phone;
+            const website = location.website ? location.website : "";
+            const logo = location.logo;
+            const position = { lat: location.latitude, lng: location.longitude };
             const content = sanitizeHTML`
         <div class="infoWindow">
             <img class="infoWindowLogo" src=${logo} alt="store logo"/>
@@ -415,8 +416,8 @@
 
         // Build parallel arrays for the store IDs and destinations
         locations.forEach((store) => {
-            const storeNum = store.properties.storeid;
-            const storeLoc = {lat: store.geometry.coordinates[0], lng: store.geometry.coordinates[1]};
+            const storeNum = store._id;
+            const storeLoc = {lat: store.latitude, lng: store.longitude};
 
             stores.push(storeNum);
             destinations.push(storeLoc);
@@ -504,17 +505,17 @@
             const right = document.createElement('div');
             const name = document.createElement('p');
             name.classList.add('place');
-            const currentStore = locations.filter(location => location.properties.storeid === store.storeid)[0];
+            const currentStore = locations.filter(location => location._id === store.storeid)[0];
             const left = document.createElement('img');
-            left.src = currentStore.properties.logo;
+            left.src = currentStore.logo;
             left.alt = "store logo"
             left.classList.add('panelStoreLogo')
-            name.textContent = currentStore.properties.name;
+            name.textContent = currentStore.name;
             right.appendChild(name);
-            if (currentStore.properties.website) {
+            if (currentStore.website) {
                 const websiteLink = document.createElement('a');
                 websiteLink.classList.add('websiteLink');
-                websiteLink.href = currentStore.properties.website;
+                websiteLink.href = currentStore.website;
                 websiteLink.textContent = "website";
                 websiteLink.target= "_blank"
                 right.appendChild(websiteLink);
@@ -527,7 +528,7 @@
             entry.appendChild(right);
             panel.appendChild(entry);
             entry.addEventListener("click", ()=>{
-                let position = {lat: currentStore.geometry.coordinates[0], lng: currentStore.geometry.coordinates[1]}
+                let position = {lat: currentStore.latitude, lng: currentStore.longitude}
                 map.setCenter(position);
                 map.setZoom(14);
             })

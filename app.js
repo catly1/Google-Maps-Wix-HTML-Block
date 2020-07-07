@@ -1,3 +1,105 @@
+let geoLocations = {
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    38.05349258657173, -121.37229466226532
+                ]
+            },
+            "type": "Feature",
+            "properties": {
+                "category": "Chicken",
+                "hours": "11am - 12am",
+                "description": "Casual counter-serve chain serving a variety of chicken wings & sides in an aviation-themed space.",
+                "name": "Wingstop",
+                "phone": "+12094743238",
+                "storeid": "01",
+                "website": "https://www.wingstop.com/",
+                "logo": "https://media.glassdoor.com/sqll/16199/wingstop-squarelogo-1562178086654.png"
+            }
+        },
+        {
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    38.05062718375251, -121.3749645698616
+                ]
+            },
+            "type": "Feature",
+            "properties": {
+                "category": "Store",
+                "hours": "11am - 12am",
+                "description": "Place where you buy made in China things.",
+                "name": "Walmart",
+                "phone": "+12094743238",
+                "storeid": "02",
+                "website": "https://www.walmart.com/",
+                "logo": "https://www.bocaratontribune.com/wp-content/uploads/2020/06/walmart-logo.jpg"
+            }
+        },
+        {
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    38.05349258657173, -121.37229466226532
+                ]
+            },
+            "type": "Feature",
+            "properties": {
+                "category": "Chicken",
+                "hours": "11am - 12am",
+                "description": "Casual counter-serve chain serving a variety of chicken wings & sides in an aviation-themed space.",
+                "name": "Wingstop",
+                "phone": "+12094743238",
+                "storeid": "01",
+                "website": "https://www.wingstop.com/",
+                "logo": "https://media.glassdoor.com/sqll/16199/wingstop-squarelogo-1562178086654.png"
+            }
+        },
+        {
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    38.05349258657173, -121.37229466226532
+                ]
+            },
+            "type": "Feature",
+            "properties": {
+                "category": "Chicken",
+                "hours": "11am - 12am",
+                "description": "Casual counter-serve chain serving a variety of chicken wings & sides in an aviation-themed space.",
+                "name": "Wingstop",
+                "phone": "+12094743238",
+                "storeid": "03",
+                "website": "https://www.wingstop.com/",
+                "logo": "https://media.glassdoor.com/sqll/16199/wingstop-squarelogo-1562178086654.png"
+            }
+        },
+        {
+            "geometry": {
+                "type": "Point",
+                "coordinates": [
+                    38.05349258657173, -121.37229466226532
+                ]
+            },
+            "type": "Feature",
+            "properties": {
+                "category": "Chicken",
+                "hours": "11am - 12am",
+                "description": "Casual counter-serve chain serving a variety of chicken wings & sides in an aviation-themed space.",
+                "name": "Wingstop",
+                "phone": "+12094743238",
+                "storeid": "04",
+                "website": "https://www.wingstop.com/",
+                "logo": "https://media.glassdoor.com/sqll/16199/wingstop-squarelogo-1562178086654.png"
+            }
+        }
+    ]
+}
+
+
 function sanitizeHTML(strings) {
     const entities = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', '\'': '&#39;' };
     let result = strings[0];

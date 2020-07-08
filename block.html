@@ -148,6 +148,7 @@
 
         .infoWindow{
             display: flex;
+            
         }
 
         .infoWindow h2 {
@@ -166,6 +167,32 @@
             .wrapper{
                 flex-direction: column-reverse;
             }
+
+            .infoWindow{
+                max-width: 300;
+                overflow-wrap: normal;
+            }
+
+            .infoWindow h2{
+                
+                font-size: 1em;
+            }
+
+            .infoWindow p {
+                font-size: 0.7em;
+            }
+
+            .infoWindow a {
+                font-size: 0.7em;
+            }
+
+            .infoWindowLogo{
+                width: 50px;
+                height: 50px;
+                object-fit: cover;
+                margin-right: 10px;
+            }
+
 
             #panel{
                 width: 100%;
@@ -201,7 +228,6 @@
 </head>
 
 <body>
-    <!-- The div to hold the map -->
     <div class="wrapper">
         <div id="panel"></div>
         <div id="map"></div>
@@ -269,7 +295,7 @@
             container.setAttribute('id', 'pac-container');
             input.setAttribute('id', 'pac-input');
             input.setAttribute('type', 'text');
-            input.setAttribute('placeholder', 'Enter an address');
+            input.setAttribute('placeholder', 'Ingresar una dirección');
             container.appendChild(input);
             card.appendChild(titleBar);
             card.appendChild(container);
@@ -337,9 +363,31 @@
     }
 
     function createMarker(map, location, infoWindow, apiKey){
+        //custom icons
+        // let restaurantIcon = {
+        //     url: 'https://www.mialmacenero.cl/img/markers/ico-almacen.svg',
+        // }
+
+        // let storeIcon = {
+        //     url: 'https://www.mialmacenero.cl/img/markers/ico-supermercado.svg',
+        // }
+
+        let icon
+        // switch (location.category) {
+        //     case "store":
+        //         icon = storeIcon;
+        //         break;
+        //     case "restaurant":
+        //         icon = restaurantIcon;
+        //         break;
+        //     default:
+        //         break;
+        // }
+
         var marker = new google.maps.Marker({
             map: map,
-            position: {lat: location.latitude, lng: location.longitude}
+            position: {lat: location.latitude, lng: location.longitude},
+            icon: icon
         });
 
         marker.addListener("click", (event) =>{
@@ -401,15 +449,7 @@
         return {position: originLocation};
     }
 
-    /**
-     * Use Distance Matrix API to calculate distance from origin to each store.
-     * @param {google.maps.Data} data The geospatial data object layer for the map
-     * @param {google.maps.LatLng} origin Geographical coordinates in latitude
-     * and longitude
-     * @return {Promise<object[]>} n Promise fulfilled by an array of objects with
-     * a distanceText, distanceVal, and storeid property, sorted ascending
-     * by distanceVal.
-     */
+
     async function calculateDistances(locations, origin) {
         const stores = [];
         const destinations = [];
@@ -464,13 +504,6 @@
         return distancesList;
     }
 
-    /**
-     * Build the content of the side panel from the sorted list of stores
-     * and display it.
-     * @param {google.maps.Data} data The geospatial data object layer for the map
-     * @param {object[]} stores An array of objects with a distanceText,
-     * distanceVal, and storeid property.
-     */
     function showStoresList(locations, stores, map) {
         if (stores.length == 0) {
             console.log('empty stores');

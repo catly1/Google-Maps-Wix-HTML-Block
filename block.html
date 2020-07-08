@@ -257,15 +257,14 @@
         let loaded;
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 7,
-            center: { lat: 38.05267251910551, lng: -121.37343314718275 },
+            center: { lat: -33.43146032065786, lng: -70.64425628351391 },
             mapTypeControl: false
         });
         let originMarker;
-
         window.onmessage = (event) => {
             if (!loaded){
             // Load the stores GeoJSON onto the map.
-                const apiKey = 'AIzaSyBeIL0BP3dy8iUlMk0SK-Rhn0GN2VUJL2c';
+                const apiKey = 'AIzaSyDrRGFq3d3VLIwM-xl5PlfbEaL3il94HX0';
                 const infoWindow = new google.maps.InfoWindow();
             if (event.data) {
                 console.log(event.data)
@@ -285,7 +284,7 @@
             const input = document.createElement('input');
             const options = {
                 types: ['address'],
-                componentRestrictions: { country: 'us' },
+                componentRestrictions: { country: 'cl' },
             };
 
             card.setAttribute('id', 'pac-card');
@@ -574,7 +573,7 @@
     }
     </script>
     <script async defer
-        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAK1dKaLMmQzD00H33fHWJJh7_tXmrjnHg&libraries=places&callback=initMap">
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDrRGFq3d3VLIwM-xl5PlfbEaL3il94HX0&libraries=places&callback=initMap">
         </script>
 </body>
 

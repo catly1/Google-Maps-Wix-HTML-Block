@@ -143,7 +143,7 @@
         .panelStoreLogo{
             width: 50px;
             height: 50px;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .infoWindow{
@@ -158,7 +158,7 @@
         .infoWindowLogo{
             width: 100px;
             height: 100px;
-            object-fit: cover;
+            object-fit: contain;
             margin-right: 10px;
         }
 
@@ -189,8 +189,6 @@
             .infoWindowLogo{
                 width: 50px;
                 height: 50px;
-                object-fit: cover;
-                margin-right: 10px;
             }
 
 
@@ -267,12 +265,13 @@
                 const apiKey = 'AIzaSyDrRGFq3d3VLIwM-xl5PlfbEaL3il94HX0';
                 const infoWindow = new google.maps.InfoWindow();
             if (event.data) {
-                console.log(event.data)
                 event.data.features.forEach(location =>{
+                    if(location.latitude){
                     locations.push(location)
                     let markerLocation = createMarker(map, location, infoWindow, apiKey)
                     markers.push(markerLocation)
                     originalMarkers.push(markerLocation)
+                    }
                 })
             }
 
@@ -312,7 +311,14 @@
                 ['address_components', 'geometry', 'name']);
 
             // Set the origin point when the user selects an address
-            originMarker = new google.maps.Marker({ map: map});
+
+            let userIcon = { url: "https://static.wixstatic.com/media/1dd274_728a9863abe74dfb9e39a07909f7000f~mv2.png",     
+                    scaledSize: new google.maps.Size(50, 60), // scaled size
+                    origin: new google.maps.Point(0, 0), // origin
+                    anchor: new google.maps.Point(0, 0) // anchor
+                    }
+
+            originMarker = new google.maps.Marker({ map: map, icon : userIcon});
             originMarker.setVisible(false);
             let originLocation = map.getCenter();
 
@@ -326,7 +332,6 @@
             const place = autocomplete.getPlace();
 
             if (!place.geometry) {
-                console.log("it's here")
                 // User entered the name of a Place that was not suggested and
                 // pressed the Enter key, or the Place Details request failed.
                 window.alert('No address available for input: \'' + place.name + '\'');
@@ -404,7 +409,7 @@
             <div class="infoWindowRight">
                 <h2>${name}</h2><p>${description}</p>
                 <p><b>Open:</b> ${hours}<br/><b>Phone:</b> ${phone}</p>
-                <a target="_blank" href=${website}>Website</a>
+                <a target="_blank" href=${website}>Pedir</a>
             </div>
         </div>
         `;
@@ -548,7 +553,7 @@
                 const websiteLink = document.createElement('a');
                 websiteLink.classList.add('websiteLink');
                 websiteLink.href = currentStore.website;
-                websiteLink.textContent = "website";
+                websiteLink.textContent = "Pedir";
                 websiteLink.target= "_blank"
                 right.appendChild(websiteLink);
             }
